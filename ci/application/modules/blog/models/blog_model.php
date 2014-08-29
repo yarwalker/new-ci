@@ -2,14 +2,25 @@
 
 class Blog_Model extends MY_Model {
 
-    private $table, $mname;
-
-    protected $_table_name = 'ct_pages';
+    private $_entries_cnt;
+    protected $_table_name = 'blog_records';
     protected $_order_by = 'id';
+    public $rules = array(
+        'id' => array(
+            'field' => 'id',
+            'label' => 'ID',
+            'rules' => 'trim|intval'
+        ),
+    );
 
     public function __construct() {
-        parent::__construct();
-        //$this->table = '';
+       parent::__construct();
+
+      # labels
+      $this->lang->load('blog');
+    
+      # helpers
+      $this->load->helper('date');
     }
 
     public function index()
@@ -38,30 +49,75 @@ class Blog_Model extends MY_Model {
         
         
 
-        // верхнее меню
-      //  $this->common->load_model($this->mname, $tmenu);
-        //$this->load->model($this->mname.'/'.'top_menu_model');
-        //$this->load->model('application/models/tree');
-        //$top_menu = $this->tree->getTreeMenu(($this->session->userdata( 'ba_role' )) ? $this->session->userdata( 'ba_role' ) : 'all');
-
-     //   $top_menu = $this->$tmenu_model->getTreeMenu('all');
-        //var_dump($top_menu);
-        //echo $this->top_menu_model->buildTopMenu($top_menu);
-        //return $this->top_menu_model->buildTopMenu($top_menu);
-        //return $list;
-
-        // заполняем необходимые метки
-      //  $a['modal_info'] = lang('ci_base.info');
-      //  $a['modal_btn_close'] = lang('ci_base.close');
-     //   $a['language_links'] = language_links('li');
-     //   $a['promo_link'] = lang('ci_base.gotopromo');
-     //   $a['support'] = lang('ci_base.technical_support');
-
-       // $a['top_menu'] = $this->$tmenu_model->buildTopMenu($top_menu);
-     //   $this->tp->assign($a);
+    
 
 
+    }
 
+    public function get_entries($limit, $event = 'index')
+    {
+        // sql query initiate
+        $ext_condition = '';
+
+        // event - index or search
+        if( $this->bitauth->logged_in () ):
+          switch ($this->session->userdata('ba_role')) {
+            case 'user':
+                        // запрос для авторизованного пользователя
+                        $sql = "SELECT * FROM (
+                                SELECT * FROM `" . $this->db->dbprefix . "blog_records`
+                                 WHERE `author_id` = " . $this->session->userdata('ba_throne_id') . "
+                                UNION
+                                SELECT * FROM `" . $this->db->dbprefix . "blog_records`
+                                 WHERE `active` = 1 AND `date` < " . date('U',mktime(0, 0, 0, date('m'), date('d')+1, date('Y') )) . "
+                                ) a
+                              WHERE a.`lang` = '" . language_code() . "' ";
+                        break;
+            case 'admin':
+                        // запрос для админа
+                        $sql = "SELECT * FROM `" . $this->db->dbprefix . "blog_records` a WHERE a.`lang` = '" . language_code() . "' ";
+                        break;
+          }
+
+            else:
+                // запрос для неавторизованного посетителя
+                $sql = "SELECT * FROM `" . $this->db->dbprefix . "blog_records` a
+                         WHERE a.`active` = 1
+                           AND a.`lang` = '" . language_code() . "'
+                           AND a.`authorizedonly` = 0 AND a.`date` < " . date('U',mktime(0, 0, 0, date('m'), date('d')+1, date('Y') )) ;
+            endif;
+
+            // доп. условие для поиска
+            if($event == 'search'):
+                $ext_condition = ' AND (UPPER(a.`title`) LIKE "%' . mb_strtoupper($this->input->get('q',true)) . '%" OR UPPER(a.`announce`) LIKE "%' . mb_strtoupper($this->input->get('q',true)) . '%" OR UPPER(a.`body`) LIKE "%' . mb_strtoupper($this->input->get('q',true)) . '%") ';
+            elseif($event == 'filter'): // доп. условие для фильтра
+                $ext_condition = $this->process_filter();
+            endif;
+
+        $sql .= $ext_condition;
+
+        //endif;
+
+        //echo $sql;
+
+        // get total entries
+        $this->set_entries_cnt( $this->db->query($sql)->num_rows() );
+
+        $offset = 0;
+        if($this->get_entries_cnt() > 10 && $this->input->get('per_page',true) && is_numeric($this->input->get('per_page',true)) )
+            $offset = $limit * $this->input->get('per_page',true) - $limit;
+
+        return $this->db->query($sql . ' ORDER BY `date` DESC LIMIT ' . $offset . ', ' . $limit)->result();
+    }
+
+    public function get_entries_cnt()
+    {
+        return $this->_entries_cnt;
+    }
+
+    public function set_entries_cnt($cnt)
+    {
+        $this->_entries_cnt = $cnt;
     }
 
     public function get_by($where, $single = FALSE){

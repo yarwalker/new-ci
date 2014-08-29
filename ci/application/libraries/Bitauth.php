@@ -98,6 +98,8 @@ class Bitauth
 	 */
 	public function login($username, $password, $remember = FALSE, $extra = array(), $token = NULL)
 	{
+
+
 		if(empty($username))
 		{
 			$this->set_error($this->lang->line('bitauth_username_required'));
@@ -164,10 +166,12 @@ class Bitauth
 			}
 
 			$this->log_attempt($user->user_id, FALSE);
+
+
 		}
 		else
 		{
-			$this->log_attempt(FALSE, FALSE);
+			$this->log_attempt(FALSE, FALSE); 
 		}
 
 		$this->set_error(sprintf($this->lang->line('bitauth_login_failed'), $this->lang->line('bitauth_username')));

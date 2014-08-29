@@ -1,5 +1,9 @@
-<?php echo form_open('main',array('class'=>"well form-inline form-login", 'autocomplete' => 'off' )); ?>
-<? if (!isset($logged) || $logged < 1):?>	
+<?php 
+
+//var_dump_print($_SESSION);
+
+echo form_open( language_code() . '/auth',array('class'=>"well form-inline form-login", 'autocomplete' => 'off' )); ?>
+<? if (!isset($_SESSION['logged']) || $_SESSION['logged'] < 1):?>	
 		<div class="control-group">
 			<label class="control-label"><?=lang('ci_base.login')?></label>
 			<div class="controls">
@@ -13,7 +17,7 @@
 			</div>
 		</div>
         <input type="hidden" name="referer_url" value="<?=uri_string()?>" />
-		<?php if (isset($login_errors)) form_errors_fetch($login_errors);?>
+		<?php if (isset($_SESSION['login_errors'])) form_errors_fetch($_SESSION['login_errors']);?>
 		<button type="submit" class="btn"><?=lang('ci_base.enter')?></button>
         <a class="ch-pass" href="<?=lang_root_url('user/passremind')?>"><?=lang('ci_base.passremind')?></a>
 		<br/><br/>
@@ -22,8 +26,8 @@
 		<br/>
 		<div class="i-link"><i class="t-dark-arrow"></i><a href="<?=lang_root_url('user/activateaccount')?>"><?=lang('ci_base.activateaccount')?></a></div>
 <?endif;?>	
-<? if (isset($gobacklink))
-	echo '<br/><div class="i-link"><i class="t-dark-arrow"></i>' . $gobacklink . '</a></div>';
+<? if( isset($_SESSION['gobacklink']) )
+	echo '<br/><div class="i-link"><i class="t-dark-arrow"></i>' . $_SESSION['gobacklink'] . '</a></div>';
 ?>
 				
 	<br/>

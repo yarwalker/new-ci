@@ -24,11 +24,11 @@ class Pages_Model extends MY_Model {
 
         $this->tp->tpl = $page_content->column_cnt . 'cols_template.tpl';
 
-        //if( $this->bitauth->logged_in() )
-       //     $a['CONTENT'] = isset($page_content->auth_body) ? stripslashes(htmlspecialchars_decode($page_content->auth_body, ENT_QUOTES)) : '';
-       // else
+        if (isset($_SESSION['logged']) && $_SESSION['logged'] > 0):
+            $a['CONTENT'] = isset($page_content->auth_body) ? stripslashes(htmlspecialchars_decode($page_content->auth_body, ENT_QUOTES)) : '';
+        else:
             $a['CONTENT'] = isset($page_content->body) ? stripslashes(htmlspecialchars_decode($page_content->body, ENT_QUOTES)) : '';
-                
+        endif;        
 
         //var_dump_exit($a);
 
@@ -37,28 +37,7 @@ class Pages_Model extends MY_Model {
         
         
 
-        // верхнее меню
-      //  $this->common->load_model($this->mname, $tmenu);
-        //$this->load->model($this->mname.'/'.'top_menu_model');
-        //$this->load->model('application/models/tree');
-        //$top_menu = $this->tree->getTreeMenu(($this->session->userdata( 'ba_role' )) ? $this->session->userdata( 'ba_role' ) : 'all');
-
-     //   $top_menu = $this->$tmenu_model->getTreeMenu('all');
-        //var_dump($top_menu);
-        //echo $this->top_menu_model->buildTopMenu($top_menu);
-        //return $this->top_menu_model->buildTopMenu($top_menu);
-        //return $list;
-
-        // заполняем необходимые метки
-      //  $a['modal_info'] = lang('ci_base.info');
-      //  $a['modal_btn_close'] = lang('ci_base.close');
-     //   $a['language_links'] = language_links('li');
-     //   $a['promo_link'] = lang('ci_base.gotopromo');
-     //   $a['support'] = lang('ci_base.technical_support');
-
-       // $a['top_menu'] = $this->$tmenu_model->buildTopMenu($top_menu);
-     //   $this->tp->assign($a);
-
+      
 
 
     }

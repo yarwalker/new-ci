@@ -3,7 +3,8 @@
 class Blog extends MX_Controller {
 
     public $mname, 
-           $tag = 'CONTENT';
+           $tag = 'CONTENT',
+           $per_page = 10;;
 
     function __construct()
     {
@@ -21,16 +22,57 @@ class Blog extends MX_Controller {
      //   $this->lang->load('pages', current_lang());
     }
 
-    public function index(  )
+    public function index()
     {
-        
-        
-        $model = $this->mname.'_model';
+        $model = $this->mname . '_model';
 
-        $this->$model->index();
+        //$this->$model->index();
 
-       // var_dump_exit($this->tp->D);
-       // $this->tp->parse($this->tag, $this->mname.'/'.$this->mname.'.tpl'); 
+        if( $this->input->get('q',true) ):
+            $entries = $this->$model->get_entries($this->per_page, 'search');
+        elseif( $this->input->get('filter',true) ):
+            $entries = $this->$model->get_entries($this->per_page, 'filter');
+        else:
+            $entries = $this->$model->get_entries($this->per_page);
+        endif;
+       
+        $this->m_pagination("blog/index", $this->blog_model->get_entries_cnt());
+
+        foreach ($entries as $id => &$entry)
+        {
+          //$tagIDs =  $this->blog_model->_get_entry_tags($entry->id);
+          //$entryTags = $this->blog_model->get_post_tags($entry->id);
+          $entryTags = modules::run('tags_bind/get_entry_tags_label', $entry->id, 'blog');
+          $tags_array = Array();
+
+          if(count($entryTags)):
+                foreach($entryTags as $tag):
+                    if (strlen($tag->name) > 0)
+                        $tags_array[] = anchor(lang_root_url('blog/index?filter[tags]=' . $tag->tag_id ), $tag->name );
+                endforeach;
+            endif;
+
+          $entry->tags = implode(", ",$tags_array);
+          $entry->body = htmlspecialchars_decode($this->_limit($entry->body));
+          //$entry->comments = modules::run('blog_comments', $entry->id);
+        }
+
+
+    }
+
+    public function m_pagination($pagerpath, $totalrows)
+    {
+        # libraries
+        $this->load->library('pagination');
+
+        $config['base_url']   = lang_root_url( $pagerpath ); // путь к страницам в пейджере
+        $config['total_rows'] = $totalrows;
+        $config['per_page']   = 10;
+        $config['num_links']  = 5;
+        $config['page_query_string'] = true;
+
+        $this->pagination->initialize($config);
+        $this->data['pagination'] = $this->pagination->create_links();
     }
 
     

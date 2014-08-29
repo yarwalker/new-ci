@@ -41,6 +41,35 @@ class Menu_Model extends MY_Model {
 
     }
 
+    public function getUserMenu()
+    {
+        $user_menu_str = '';
+
+        if (isset($_SESSION['logged']) && $_SESSION['logged'] > 0):
+            $user_menu_str .= '
+                <ul class="nav pull-right">
+                    <li class="divider-vertical"></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i>' . ( $this->session->userdata('ba_name') ? trim(str_replace($this->session->userdata('ba_username'), '', $this->session->userdata('ba_name'))) : lang('ci_base.user') ) . '<b class="caret"></b></a>
+                        <ul class="dropdown-menu">';
+            if ( ! isset($_SESSION['ba_role']) || $_SESSION['ba_role'] != 'admin' ):
+                    $user_menu_str .= '<li><a target="_blank" href="' . lang_root_url('user/profile') . '">' . lang('ci_base.edit_my_profile') . '</a></li>' .
+                                      '<li><a target="_blank" href="' . lang_root_url('user/invite') . '">' . lang('ci_base.invite') . '</a></li>' .
+                                      '<li><a href="' . lang_root_url('projects') . '">' . lang('ci_base.my_company_projects') . '</a></li>' .
+                                      '<li><a href="' . lang_root_url('company') . '">' . lang('ci_base.my_company_info') . '</a></li>' .
+                                      '<li><a href="' . lang_root_url('user') . '">' . lang('ci_base.my_company_users') . '</a></li>';
+            endif; 
+            
+            $user_menu_str .= '<li><a href="' . lang_root_url('auth/logout') . '"><i class="icon-external-link"></i>' . lang('ci_base.exit') . '</a></li>
+                            </ul>
+                        </li>
+                    </ul>';
+        endif; 
+
+        $a['user_menu'] = $user_menu_str;
+        $this->tp->assign($a);
+    }
+
      function getTreeview($type = '')
     {
         if($type <> '') $this->db->where('type', $type);

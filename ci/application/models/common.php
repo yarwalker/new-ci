@@ -10,10 +10,15 @@ class Common extends CI_Model {
 
         if (is_dir('../../ci/application/modules/'.$module))  // proveryaet, sushestvuet li modul
         {
-            
+            //$method = 'index';
+
+            //if( isset( $this->uri->segment(3) ) && $this->uri->segment(3) != '')
+             if( ! $method = $this->uri->segment(3) )
+                $method = 'index';
+
             $this->load->module($module);
 
-            $this->$module->index();
+            $this->$module->$method();
             //echo 'load module: ' . $module . '<br/>';
         }        
 

@@ -13,13 +13,19 @@ class Menu extends MX_Controller {
         $this->tag = strtoupper($this->mname); // TAG v shablone
 
         // загружаем модель для меню
-        $this->load->model($this->mname.'/'.$this->mname.'_model');
+        $this->load->model( $this->mname . '/' . $this->mname . '_model' ); 
     }
 
     public function index( $type = 'all' )
     {
         $model = $this->mname . '_model';
         $this->$model->index( $type );
+    }
+
+    public function makeUserMenu()
+    {
+        $model = $this->mname . '_model'; 
+        $this->$model->getUserMenu(); 
     }
 
     

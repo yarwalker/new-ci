@@ -23,6 +23,8 @@
         </a>
         <div class="nav-collapse">
             {menu}
+            {user_menu}
+            
         </div><!-- /.nav-collapse -->
     </div>
     <?php if (isset($header['menuactive'])) :?>

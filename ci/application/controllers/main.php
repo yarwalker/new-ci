@@ -3,13 +3,13 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Main extends MX_Controller
 {
-    private $modules;
+    private $_modules;
     public $tpl;
 
     public function __construct()
     {
         parent::__construct();
-        $this->modules = array('auth','cabinet','ads','root', 'test', 'pages', 'menu'); // разрешенные модули
+        $this->_modules = array('auth','cabinet','ads','root', 'test', 'pages', 'menu'); // разрешенные модули
     }
 
     public function index()
@@ -23,15 +23,18 @@ class Main extends MX_Controller
         // формируем ссылки футера
        // modules::run('footer');
 
+
+
         $this->check_module();  // проверяет модуль из урла
 
-      //  var_dump_exit($this->tp->D);
+
+      
 
         $this->tp->load_tpl($this->tp->tpl); // загружает шаблон и проверяет на модули
 
         $this->tp->print_page(); // выводит шаблон с проработанными модулями на экран
 
-        //var_dump_print($this->tp->D);
+        
     }
 
     public function check_lang()
@@ -57,9 +60,11 @@ class Main extends MX_Controller
 
     public function check_module()
     {
-        if ($m=$this->uri->segment(2))
+        if( $m = $this->uri->segment(2) )
         {
-            if (in_array($m,$this->_modules))
+            //var_dump_exit($m);
+
+            if( in_array($m, $this->_modules) )
             {
                 $this->common->load_module($m);
                 $this->tp->tpl = $this->$m->tpl;
@@ -78,30 +83,6 @@ class Main extends MX_Controller
 
     public function load_main_page()
     {
-        //$this->tp->tpl = 'p_default.tpl';
-       // $this->tp->assign('page_title','Главная страница');
-
-
-        //$this->load->model($this->mname.'/'.$this->mname.'_model');
-        //$model=$this->mname.'_model';
-        //$this->$model->index($this->mname);
-        //$this->tp->parse($this->tag, $this->mname.'/'.$this->mname.'.tpl');
-
-        // get page content
-
-     /*   $m = 'page';
-        $this->common->load_module($m);
-        $this->tp->tpl = $this->$m->tpl;
-
-        $model = $m . '_model';
-        $this->$model->index($this->mname);
-        $this->tp->parse($this->tag, $this->mname.'/'.$this->mname.'.tpl');
-
-        $this->load->model('page_model');
-        $this->data['page_content'] = $this->page_model->get_by(array('field' => 'url', 'match' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'], 'compare' => 'LIKE'), TRUE);
-
-        $this->tp->assign('CONTENT','<a href="'.URL.'/news">Новости</a>'); */
-
         // формируем главную страницу
         modules::run('pages');
     }

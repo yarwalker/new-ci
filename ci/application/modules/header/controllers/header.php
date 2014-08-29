@@ -20,6 +20,7 @@ class Header extends MX_Controller {
 
         // заполняем меню
         modules::run('menu', 'all');
+        modules::run('menu/makeUserMenu');
 
         $this->tp->parse($this->tag, $this->mname.'/'.$this->mname.'.tpl');
     }
